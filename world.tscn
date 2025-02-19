@@ -37,7 +37,7 @@ material = SubResource("StandardMaterial3D_st6ld")
 
 [node name="Player" parent="." instance=ExtResource("1_i2mmk")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.85183, 0.32413, 2.03294)
-walking_speed = 10.0
+walking_speed = 5.0
 JUMP_VELOCITY = 10.0
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]

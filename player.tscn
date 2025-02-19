@@ -4,20 +4,24 @@
 resource_name = "PlayerMove"
 script/source = "extends CharacterBody3D
 class_name Player
-var current_speed = 5.0
 
-@export var walking_speed = 5.0
+
+@export var walking_speed = 2.0
+@export var running_speed = 9.0
+
+var current_speed = walking_speed
 
 const lerp_speed = 10.0
-const SPEED = 5.0
+
 @export var JUMP_VELOCITY: float = 5.5
 @export var mouse_sens: float = 0.01
+
 
 #Head Bob mechanic
 const headbob_frequency = 2.0
 const headbob_amplitude = 0.07
 var headbob = 0.00
-
+var is_running: bool = false
 
 var direction
 
@@ -48,6 +52,7 @@ func _physics_process(delta: float) -> void:
 	# Quit
 	if Input.is_action_just_pressed(\"escape\"):
 		get_tree().quit()
+		
 	
 	# Add the gravity.
 	if not is_on_floor():
@@ -56,12 +61,25 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
 			velocity.y = (JUMP_VELOCITY/2)
+			
+	# Sprint
+	if Input.is_action_pressed(\"sprint\"):
+		current_speed = running_speed
+		is_running = true
+	else:
+		current_speed = walking_speed
+		is_running = false
 
 	# Get the input direction and handle the movement/deceleration.
 	# As good practice, you should replace UI actions with custom gameplay actions.
 	var input_dir := Input.get_vector(\"left\", \"right\", \"up\", \"down\")
 	direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	if direction:
+		if is_running:
+			print(\"Runnning\")
+			current_speed = running_speed
+		else:
+			current_speed = walking_speed
 		velocity.x = direction.x * current_speed
 		velocity.z = direction.z * current_speed
 	else:
@@ -72,6 +90,7 @@ func _physics_process(delta: float) -> void:
 	#Head bob Mechanic
 	headbob += delta * velocity.length() * float(is_on_floor())
 	pivot.get_child(0).transform.origin = process_headbob(headbob)
+	
 	# Handle Collisions
 	move_and_slide()
 "
@@ -88,7 +107,6 @@ glow_bloom = 0.09
 
 [node name="Player" type="CharacterBody3D" groups=["Player"]]
 script = SubResource("GDScript_20teb")
-walking_speed = 3.0
 JUMP_VELOCITY = 4.5
 mouse_sens = 0.7
 
