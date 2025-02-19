@@ -39,6 +39,7 @@ material = SubResource("StandardMaterial3D_st6ld")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.85183, 0.32413, 2.03294)
 walking_speed = 5.0
 JUMP_VELOCITY = 10.0
+mouse_sens = 0.2
 
 [node name="CSGBox3D2" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.7282, 0.0916853, -3.75147)

@@ -8,7 +8,9 @@ class_name Player
 
 @export var walking_speed = 2.0
 @export var running_speed = 9.0
+@export var max_jumps = 1
 
+var jump_counter = 0
 var current_speed = walking_speed
 
 const lerp_speed = 9.0
@@ -62,6 +64,7 @@ func _physics_process(delta: float) -> void:
 	# Jump Logic
 	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
 			velocity.y = (JUMP_VELOCITY/2)
+			jump_counter += 1
 			
 	# Sprint Logic
 	if Input.is_action_pressed(\"sprint\"):
@@ -103,6 +106,7 @@ glow_bloom = 0.09
 
 [node name="Player" type="CharacterBody3D" groups=["Player"]]
 script = SubResource("GDScript_20teb")
+max_jumps = 3
 JUMP_VELOCITY = 4.5
 mouse_sens = 0.7
 
