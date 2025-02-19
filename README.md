@@ -6,10 +6,11 @@ A very basic barebones project for getting started with first person games
 
 - Headbob
 - Sprint
+- Toggle movement in the air
+- Lerped motion
 
 ## TODO 
 
-- Add lerp motion for smoother mouselook
 - Add crouch
 - Add Multiple Jumps
 
