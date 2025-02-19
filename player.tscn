@@ -8,12 +8,13 @@ var current_speed = 5.0
 
 @export var walking_speed = 5.0
 
+const lerp_speed = 10.0
 const SPEED = 5.0
 @export var JUMP_VELOCITY: float = 5.5
 @export var mouse_sens: float = 0.01
 
 
-const lerp_speed = 10.0
+
 
 var direction
 
@@ -56,8 +57,8 @@ func _physics_process(delta: float) -> void:
 		velocity.x = direction.x * current_speed
 		velocity.z = direction.z * current_speed
 	else:
-		velocity.x = move_toward(velocity.x, 0, current_speed)
-		velocity.z = move_toward(velocity.z, 0, current_speed)
+		velocity.x = 0.0
+		velocity.z = 0.0
 		
 	# Handle Collisions
 	move_and_slide()
