@@ -21,7 +21,7 @@ const lerp_speed = 9.0
 
 #Head Bob mechanic
 const headbob_frequency = 2.0
-const headbob_amplitude = 0.07
+const headbob_amplitude = 0.04
 var headbob = 0.00
 var is_running: bool = false
 
