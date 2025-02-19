@@ -1,0 +1,99 @@
+[gd_scene load_steps=4 format=3 uid="uid://f1cp8bk8pcrn"]
+
+[sub_resource type="GDScript" id="GDScript_20teb"]
+resource_name = "PlayerMove"
+script/source = "extends CharacterBody3D
+class_name Player
+var current_speed = 5.0
+
+@export var walking_speed = 5.0
+
+const SPEED = 5.0
+@export var JUMP_VELOCITY: float = 5.5
+@export var mouse_sens: float = 0.01
+
+
+const lerp_speed = 10.0
+
+var direction
+
+@onready var pivot: Node3D = $Pivot
+@onready var collision_shape_3d: CollisionShape3D = $CollisionShape3D
+@onready var ray_cast_3d: RayCast3D = $RayCast3D
+
+func _ready() -> void:
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	#speed_text.text = \"Speed: \" + str(current_speed)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
+		pivot.rotate_x(deg_to_rad(-event.relative.y * mouse_sens))
+		pivot.rotation.x = clamp(pivot.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+	
+		
+func _physics_process(delta: float) -> void:
+	
+
+	# Quit
+	if Input.is_action_just_pressed(\"escape\"):
+		get_tree().quit()
+	
+	# Add the gravity.
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+		
+
+	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
+			velocity.y = (JUMP_VELOCITY/2)
+
+	# Get the input direction and handle the movement/deceleration.
+	# As good practice, you should replace UI actions with custom gameplay actions.
+	var input_dir := Input.get_vector(\"left\", \"right\", \"up\", \"down\")
+	direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
+	if direction:
+		velocity.x = direction.x * current_speed
+		velocity.z = direction.z * current_speed
+	else:
+		velocity.x = move_toward(velocity.x, 0, current_speed)
+		velocity.z = move_toward(velocity.z, 0, current_speed)
+		
+	# Handle Collisions
+	move_and_slide()
+"
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3mirs"]
+
+[sub_resource type="Environment" id="Environment_uul6g"]
+background_mode = 1
+background_color = Color(0.0728426, 0.0728426, 0.0728426, 1)
+ambient_light_source = 1
+reflected_light_source = 1
+glow_enabled = true
+glow_bloom = 0.09
+
+[node name="Player" type="CharacterBody3D" groups=["Player"]]
+script = SubResource("GDScript_20teb")
+walking_speed = 3.0
+JUMP_VELOCITY = 4.5
+mouse_sens = 0.7
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_3mirs")
+
+[node name="Pivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Pivot"]
+environment = SubResource("Environment_uul6g")
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.233686, 0)
+target_position = Vector3(0, 2, 0)
+debug_shape_thickness = 5
+
+[node name="Marker3D" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.52144, -3.06919)
+gizmo_extents = 2.5
