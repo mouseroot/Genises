@@ -7,6 +7,7 @@ A very basic barebones project for getting started with first person games
 - Headbob
 - Sprint
 - Lerped motion
+- FPS Monitor
 
 ## TODO 
 

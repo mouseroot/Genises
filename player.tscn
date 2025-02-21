@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://f1cp8bk8pcrn"]
+[gd_scene load_steps=5 format=3 uid="uid://f1cp8bk8pcrn"]
 
 [sub_resource type="GDScript" id="GDScript_20teb"]
 resource_name = "PlayerMove"
@@ -30,6 +30,9 @@ var direction = Vector3.ZERO
 @onready var pivot: Node3D = $Pivot
 @onready var collision_shape_3d: CollisionShape3D = $CollisionShape3D
 @onready var ray_cast_3d: RayCast3D = $RayCast3D
+@onready var label_fps: Label = $Pivot/Camera3D/Panel/labelFPS
+@onready var label_object_count: Label = $Pivot/Camera3D/Panel/labelObjectCount
+
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -47,9 +50,17 @@ func process_headbob(time) -> Vector3:
 	pos.y = sin(time * headbob_frequency) * headbob_amplitude
 	pos.x = cos(time * headbob_frequency / 2) * headbob_amplitude
 	return pos
-		
+
 func _physics_process(delta: float) -> void:
-	
+	label_fps.text = \"FPS: %1.f (%.2f ms)\" % [
+		Performance.get_monitor(Performance.Monitor.TIME_FPS),
+		Performance.get_monitor(Performance.Monitor.TIME_PROCESS) * 1000
+	]
+	label_object_count.text = \"Objects: %d (%d Resources)\" % [
+		Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
+		Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)
+	]
+	#label_fps.text = \"?\"
 
 	# Quit
 	if Input.is_action_just_pressed(\"escape\"):
@@ -104,6 +115,9 @@ reflected_light_source = 1
 glow_enabled = true
 glow_bloom = 0.09
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oil24"]
+bg_color = Color(0, 0, 0, 0.141176)
+
 [node name="Player" type="CharacterBody3D" groups=["Player"]]
 script = SubResource("GDScript_20teb")
 max_jumps = 3
@@ -119,6 +133,42 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Pivot"]
 environment = SubResource("Environment_uul6g")
+
+[node name="Cursor" type="ColorRect" parent="Pivot/Camera3D"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -1.0
+offset_top = -1.0
+offset_right = 1.0
+offset_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0.427451)
+
+[node name="Panel" type="Panel" parent="Pivot/Camera3D"]
+offset_right = 294.0
+offset_bottom = 56.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_oil24")
+
+[node name="labelFPS" type="Label" parent="Pivot/Camera3D/Panel"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+theme_override_colors/font_color = Color(0, 1, 0, 0.352941)
+text = "FPS: 100"
+
+[node name="labelObjectCount" type="Label" parent="Pivot/Camera3D/Panel"]
+layout_mode = 0
+offset_top = 28.0
+offset_right = 64.0
+offset_bottom = 51.0
+theme_override_colors/font_color = Color(0, 1, 0, 0.352941)
+text = "Objects: 100"
 
 [node name="RayCast3D" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.233686, 0)
