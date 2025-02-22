@@ -1,8 +1,10 @@
 extends Area3D
+class_name InteractionHandler
 
 @export var itemTypes: Array[ItemData] = []
 
-@export var nearbyItems: Array[InteractableItem]
+var nearbyItems: Array[InteractableItem]
+
 
 func pickupNearest():
 	var lastDist: float = INF
@@ -25,10 +27,10 @@ func pickupNearest():
 func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("click"):
 		pickupNearest()
+			
 
 func onEnter(body: Node3D):
 	if body is InteractableItem:
-		body.Focus()
 		nearbyItems.append(body)
 		
 func onExit(body: Node3D):

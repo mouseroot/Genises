@@ -22,9 +22,12 @@ var is_running: bool = false
 
 var direction = Vector3.ZERO
 
+@export var interactionHandler: InteractionHandler
+var lastFocus: InteractableItem = null
+
 @onready var pivot: Node3D = $Pivot
 @onready var collision_shape_3d: CollisionShape3D = $CollisionShape3D
-@onready var ray_cast_3d: RayCast3D = $RayCast3D
+@onready var ray_cast_3d: RayCast3D = $Pivot/Camera3D/RayCast3D
 @onready var label_fps: Label = $Pivot/Camera3D/Panel/labelFPS
 @onready var label_object_count: Label = $Pivot/Camera3D/Panel/labelObjectCount
 
@@ -45,8 +48,8 @@ func process_headbob(time) -> Vector3:
 	pos.y = sin(time * headbob_frequency) * headbob_amplitude
 	pos.x = cos(time * headbob_frequency / 2) * headbob_amplitude
 	return pos
-
-func _physics_process(delta: float) -> void:
+	
+func _process(delta: float) -> void:
 	label_fps.text = "FPS: %1.f (%.2f ms)" % [
 		Performance.get_monitor(Performance.Monitor.TIME_FPS),
 		Performance.get_monitor(Performance.Monitor.TIME_PROCESS) * 1000
@@ -54,8 +57,16 @@ func _physics_process(delta: float) -> void:
 	label_object_count.text = "Objects: %d (%d Resources)" % [
 		Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
 		Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)
-	]
-	#label_fps.text = "?"
+	]	
+	var collider: InteractableItem = $Pivot/Camera3D/RayCast3D.get_collider()
+	if collider and interactionHandler.nearbyItems.has(collider):
+		lastFocus = collider
+		collider.Focus()
+	else:
+		if lastFocus:
+			lastFocus.UnFocus()
+
+func _physics_process(delta: float) -> void:
 
 	# Quit
 	if Input.is_action_just_pressed("escape"):

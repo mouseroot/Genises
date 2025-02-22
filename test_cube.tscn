@@ -20,7 +20,6 @@ _surfaces = [{
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ywk03"]
 emission_enabled = true
 emission = Color(0.977937, 0.977937, 0.977937, 1)
-emission_energy_multiplier = 3.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_52a4r"]
 
