@@ -8,10 +8,10 @@ A very basic barebones project for getting started with first person games
 - Sprint
 - Lerped motion
 - FPS Monitor
+- Iteraction Objects
 
 ## TODO 
 
-- Add crouch
-- Add Multiple Jumps
-
+- Inventory System
+- 
 

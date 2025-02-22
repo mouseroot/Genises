@@ -1,109 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://f1cp8bk8pcrn"]
+[gd_scene load_steps=9 format=3 uid="uid://f1cp8bk8pcrn"]
 
-[sub_resource type="GDScript" id="GDScript_20teb"]
-resource_name = "PlayerMove"
-script/source = "extends CharacterBody3D
-class_name mPlayer
-
-
-@export var walking_speed = 2.0
-@export var running_speed = 9.0
-@export var max_jumps = 1
-
-var jump_counter = 0
-var current_speed = walking_speed
-
-const lerp_speed = 9.0
-
-@export var JUMP_VELOCITY: float = 5.5
-@export var mouse_sens: float = 0.01
-
-
-#Head Bob mechanic
-const headbob_frequency = 2.0
-const headbob_amplitude = 0.04
-var headbob = 0.00
-var is_running: bool = false
-
-var direction = Vector3.ZERO
-
-@onready var pivot: Node3D = $Pivot
-@onready var collision_shape_3d: CollisionShape3D = $CollisionShape3D
-@onready var ray_cast_3d: RayCast3D = $RayCast3D
-@onready var label_fps: Label = $Pivot/Camera3D/Panel/labelFPS
-@onready var label_object_count: Label = $Pivot/Camera3D/Panel/labelObjectCount
-
-
-func _ready() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	#speed_text.text = \"Speed: \" + str(current_speed)
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
-		pivot.rotate_x(deg_to_rad(-event.relative.y * mouse_sens))
-		pivot.rotation.x = clamp(pivot.rotation.x, deg_to_rad(-89), deg_to_rad(89))
-
-func process_headbob(time) -> Vector3:
-	var pos = Vector3.ZERO
-	pos.y = sin(time * headbob_frequency) * headbob_amplitude
-	pos.x = cos(time * headbob_frequency / 2) * headbob_amplitude
-	return pos
-
-func _physics_process(delta: float) -> void:
-	label_fps.text = \"FPS: %1.f (%.2f ms)\" % [
-		Performance.get_monitor(Performance.Monitor.TIME_FPS),
-		Performance.get_monitor(Performance.Monitor.TIME_PROCESS) * 1000
-	]
-	label_object_count.text = \"Objects: %d (%d Resources)\" % [
-		Performance.get_monitor(Performance.OBJECT_NODE_COUNT),
-		Performance.get_monitor(Performance.OBJECT_RESOURCE_COUNT)
-	]
-	#label_fps.text = \"?\"
-
-	# Quit
-	if Input.is_action_just_pressed(\"escape\"):
-		get_tree().quit()
-		
-	
-	# Add the gravity.
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-		
-
-	# Jump Logic
-	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
-			velocity.y = (JUMP_VELOCITY/2)
-			jump_counter += 1
-			
-	# Sprint Logic
-	if Input.is_action_pressed(\"sprint\"):
-		current_speed = running_speed
-	else:
-		current_speed = walking_speed
-
-
-	# Get the input direction and handle the movement/deceleration.
-	# As good practice, you should replace UI actions with custom gameplay actions.
-	var input_dir := Input.get_vector(\"left\", \"right\", \"up\", \"down\")
-	direction = lerp(direction,transform.basis * Vector3(input_dir.x, 0, input_dir.y).normalized(),delta * lerp_speed)
-	#direction = transform.basis * Vector3(input_dir.x, 0, input_dir.y).normalized()
-	if direction:
-		velocity.x = direction.x * current_speed
-		velocity.z = direction.z * current_speed
-	else:
-		velocity.x = 0.0
-		velocity.z = 0.0
-		headbob = 0
-	
-	#Head bob Mechanic
-	headbob += delta * velocity.length() * float(is_on_floor())
-	pivot.get_child(0).transform.origin = process_headbob(headbob)
-	
-	# Handle Collisions
-	move_and_slide()
-"
+[ext_resource type="Script" path="res://player.gd" id="1_5yc42"]
+[ext_resource type="Script" path="res://InteractionHandler.gd" id="2_5vxxu"]
+[ext_resource type="Script" path="res://ItemData.gd" id="3_xisrm"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_3mirs"]
 
@@ -118,11 +17,15 @@ glow_bloom = 0.09
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oil24"]
 bg_color = Color(0, 0, 0, 0.47451)
 
+[sub_resource type="Resource" id="Resource_4qtj8"]
+script = ExtResource("3_xisrm")
+itemName = "Test Cube"
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_2xtdb"]
+radius = 1.51372
+
 [node name="Player" type="CharacterBody3D" groups=["Player"]]
-script = SubResource("GDScript_20teb")
-max_jumps = 3
-JUMP_VELOCITY = 4.5
-mouse_sens = 0.7
+script = ExtResource("1_5yc42")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -178,3 +81,16 @@ debug_shape_thickness = 5
 [node name="Marker3D" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.52144, -3.06919)
 gizmo_extents = 2.5
+
+[node name="Area3D" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.14451, 0)
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("2_5vxxu")
+itemTypes = Array[ExtResource("3_xisrm")]([SubResource("Resource_4qtj8")])
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("SphereShape3D_2xtdb")
+
+[connection signal="body_entered" from="Area3D" to="Area3D" method="onEnter"]
+[connection signal="body_exited" from="Area3D" to="Area3D" method="onExit"]
